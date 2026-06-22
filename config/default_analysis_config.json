@@ -1,0 +1,54 @@
+{
+  "analysis": {
+    "default_weld_travel_speed_mm_s": null,
+    "crack_end_preference": [
+      "l_surf_mm",
+      "l_crack_mm",
+      "l_ct_mm"
+    ],
+    "trim_force_n": null,
+    "max_force_n": null,
+    "no_crack_lstar_threshold": 0.02,
+    "full_crack_lstar_threshold": 0.98
+  },
+  "start_detection": {
+    "default_method": "manifest_or_load_rise",
+    "load_rise_delta_n": 2.0,
+    "baseline_window_s": 2.0,
+    "auto_load_to_start_delay_s": 0.0,
+    "manual_load_to_start_delay_s": 3.0,
+    "fixed_start_time_s": null
+  },
+  "plotting": {
+    "show_temperature": false,
+    "temperature_columns": "auto",
+    "temperature_during_weld_only": false,
+    "temperature_smooth_window": 1,
+    "show_raw_force": true,
+    "force_smooth_window_samples": 11,
+    "force_smooth_method": "rolling",
+    "save_pdf": false,
+    "show_stress": false,
+    "sheet_thickness_mm": null,
+    "k_factor": 0.707,
+    "style": "manuscript"
+  },
+  "styles": {
+    "material_colors": {
+      "AA6061": "#5B8CCB",
+      "6061": "#5B8CCB",
+      "AA7075": "#E6862F",
+      "7075": "#E6862F",
+      "AA5083": "#4DAF4A",
+      "5083": "#4DAF4A",
+      "304L": "#984EA3",
+      "SS304L": "#984EA3",
+      "INCONEL": "#A65628",
+      "INCONEL718": "#A65628"
+    },
+    "current_colors": {
+      "160": "#E41A1C",
+      "180": "#377EB8"
+    }
+  }
+}

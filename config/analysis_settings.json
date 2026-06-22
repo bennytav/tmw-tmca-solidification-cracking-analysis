@@ -1,0 +1,44 @@
+{
+  "weld_start_mode": "manifest_or_auto_load_rise",
+  "fixed_weld_start_time_s": 0.0,
+  "load_rise_baseline_s": 2.0,
+  "load_rise_delta_n": 2.0,
+  "load_rise_to_weld_start_delay_s": 3.0,
+  "crack_end_priority": [
+    "l_surf_mm",
+    "l_crack_mm",
+    "l_ct_mm"
+  ],
+  "show_temperature": false,
+  "temperature_columns": null,
+  "temperature_during_weld_only": false,
+  "temperature_smooth_window": 1,
+  "show_force": true,
+  "show_velocity": true,
+  "smooth_force_window": 1,
+  "plot_pdf_copy": false,
+  "figure_dpi": 300,
+  "single_run_figsize": [
+    8.8,
+    5.4
+  ],
+  "single_run_figsize_with_temperature": [
+    8.8,
+    6.8
+  ],
+  "material_colors": {
+    "AA6061": "#4C78A8",
+    "6061": "#4C78A8",
+    "AA7075": "#F58518",
+    "7075": "#F58518",
+    "AA5083": "#54A24B",
+    "5083": "#54A24B",
+    "304L": "#B279A2",
+    "SS304L": "#B279A2",
+    "Inconel": "#E45756",
+    "Inconel 625": "#E45756",
+    "IN625": "#E45756"
+  },
+  "lstar_no_crack_limit": 0.02,
+  "lstar_full_crack_limit": 0.98
+}
