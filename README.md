@@ -1,0 +1,483 @@
+# TMW/TMCA solidification-cracking analysis workflow
+
+This repository contains Python code and example data for analyzing instrumented transverse-motion weldability (TMW) and transverse-motion crack-arrest (TMCA) tests. The workflow was developed for rapid screening and final bracketing of weld solidification-cracking susceptibility.
+
+The code is intended to support two use cases:
+
+1. Reproduce the processed summary results reported in the manuscript.
+2. Analyze new TMW/TMCA tests from raw controller output files.
+
+The repository is material-agnostic. The same workflow can be used for aluminum alloys, stainless steels, Ni-base alloys, magnesium alloys, or other weldable materials, provided that the required test metadata and crack measurements are supplied in the manifest file.
+
+---
+
+## Repository structure
+
+```text
+.
+├── README.md
+├── START_HERE.md
+├── ADD_LOCAL_RAW_DATA_AND_RUN.md
+├── CITATION.cff
+├── LICENSE
+├── DATA_LICENSE_RECOMMENDATION.md
+├── pyproject.toml
+├── requirements.txt
+├── .gitignore
+├── config/
+│   └── default_analysis_config.json
+├── data/
+│   ├── processed/
+│   │   ├── tmw_oct2025_summary_standardized.csv
+│   │   ├── tmw_oct2025_summary_original_headers.csv
+│   │   ├── tmca_dec2025_summary_standardized.csv
+│   │   └── tmca_dec2025_summary_original_headers.csv
+│   ├── manifest/
+│   │   ├── benny_tmca_manifest_prefilled.csv
+│   │   ├── benny_tmw_manifest_prefilled.csv
+│   │   ├── benny_tmca_all_raw_manifest_prefilled.csv
+│   │   ├── benny_tmw_all_raw_manifest_prefilled.csv
+│   │   ├── blank_tmca_screening_manifest_template.csv
+│   │   ├── blank_tmw_bracketing_manifest_template.csv
+│   │   └── run_manifest_template.csv
+│   ├── control_csv_templates/
+│   ├── examples/
+│   ├── raw/
+│   └── control_csv/
+├── raw_data/
+│   ├── TMCA/
+│   └── TMW/
+├── docs/
+├── scripts/
+├── src/
+│   └── tmw_tmca_analysis/
+└── tests/
+```
+
+---
+
+## What data are included
+
+The public package should include:
+
+- Python analysis code.
+- Processed summary CSV files used to reproduce the manuscript summary figures.
+- Manifest templates for new TMW and TMCA tests.
+- Prefilled manifests for the manuscript dataset.
+- Raw-data inventory files.
+- Documentation explaining the complete experimental and analysis workflow.
+
+If raw controller logs are included, place them in:
+
+```text
+raw_data/TMCA/
+raw_data/TMW/
+```
+
+The raw-data folders should contain the original controller-log folders, not generated output folders. Do not place the raw folders inside an extra `raw_private/` layer. The correct structure is:
+
+```text
+raw_data/TMCA/<TMCA campaign folder>/...
+raw_data/TMW/<TMW campaign folder>/...
+```
+
+---
+
+## Installation
+
+Python 3.10 or newer is recommended.
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+On Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+On macOS/Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install the required packages:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Check the environment:
+
+```bash
+python scripts/check_environment.py
+```
+
+---
+
+## Quick reproduction of manuscript summary results
+
+To reproduce the processed manuscript summary figures and tables, run:
+
+```bash
+python scripts/reproduce_all.py
+```
+
+The outputs are written to:
+
+```text
+outputs/manuscript_reproduction/
+```
+
+This workflow uses the processed CSV files in:
+
+```text
+data/processed/
+```
+
+It does not require raw controller logs.
+
+---
+
+## Recommended experimental workflow
+
+The complete analysis workflow follows the physical test sequence.
+
+### Step 1: Perform TMCA tests for fast screening
+
+TMCA uses the velocity history:
+
+```text
+V_high -> V_step -> constant deceleration a_dec
+```
+
+The purpose is to estimate the crack-arrest velocity, `V_NC`, from a single decelerating test. This value is used to identify a practical velocity range for final TMW bracketing. It should not be treated as identical to the constant-velocity TMW crack-free boundary `V_C`.
+
+### Step 2: Analyze each TMCA test separately
+
+Every test should be checked as an individual run before it is included in a summary.
+
+If raw XML controller logs are available, first convert them to standardized CSV files:
+
+```bash
+python scripts/07_convert_raw_xml_folder.py --input-dir raw_data/TMCA --output-dir data/control_csv/tmca_raw
+```
+
+Create a manifest scaffold:
+
+```bash
+python scripts/08_create_manifest_scaffold.py --control-dir data/control_csv/tmca_raw --protocol TMCA --output-csv data/manifest/my_tmca_manifest.csv
+```
+
+If needed, manually select the weld-start position from the force trace:
+
+```bash
+python scripts/09_pick_weld_start.py --manifest data/manifest/my_tmca_manifest.csv --run-id RUN_ID --write-manifest
+```
+
+Analyze the TMCA runs:
+
+```bash
+python scripts/01_analyze_tmca_screening.py --manifest data/manifest/my_tmca_manifest.csv
+```
+
+Check the single-run plots in:
+
+```text
+outputs/01_tmca_run_analysis/run_plots/
+```
+
+### Step 3: Summarize TMCA screening results
+
+After all individual TMCA tests have been checked, run:
+
+```bash
+python scripts/02_summarize_tmca_screening.py
+```
+
+This creates a TMCA summary table and a `V_NC` screening figure.
+
+Then generate an initial TMW test plan:
+
+```bash
+python scripts/03_plan_tmw_from_tmca.py
+```
+
+### Step 4: Perform TMW tests using selected V_step values
+
+TMW uses the velocity history:
+
+```text
+V_high -> constant V_step
+```
+
+For each material/process condition, perform several TMW tests at different `V_step` values. The goal is to bracket the transition from no crack propagation to full crack propagation.
+
+### Step 5: Analyze each TMW test separately
+
+Convert raw TMW controller logs:
+
+```bash
+python scripts/07_convert_raw_xml_folder.py --input-dir raw_data/TMW --output-dir data/control_csv/tmw_raw
+```
+
+Create a TMW manifest scaffold:
+
+```bash
+python scripts/08_create_manifest_scaffold.py --control-dir data/control_csv/tmw_raw --protocol TMW --output-csv data/manifest/my_tmw_manifest.csv
+```
+
+Manually select weld start if required:
+
+```bash
+python scripts/09_pick_weld_start.py --manifest data/manifest/my_tmw_manifest.csv --run-id RUN_ID --write-manifest
+```
+
+Analyze TMW runs:
+
+```bash
+python scripts/04_analyze_tmw_bracketing.py --manifest data/manifest/my_tmw_manifest.csv
+```
+
+Check the single-run plots in:
+
+```text
+outputs/04_tmw_run_analysis/run_plots/
+```
+
+### Step 6: Fit V_C--V_F for each TMW condition
+
+After enough TMW runs are available for a condition, fit the transition interval:
+
+```bash
+python scripts/05_fit_tmw_conditions.py
+```
+
+This creates one transition plot per condition and a fitted summary table.
+
+### Step 7: Compare all TMW conditions
+
+After several conditions are fitted, compare them:
+
+```bash
+python scripts/06_compare_tmw_conditions.py
+```
+
+This creates the final comparison plot for different materials, fillers, currents, preheat conditions, or other process variables.
+
+---
+
+## Running the included raw-data workflow
+
+If the manuscript raw data are copied into `raw_data/TMCA/` and `raw_data/TMW/`, run a quick test first:
+
+```bash
+python scripts/10_run_benny_raw_data_workflow.py --limit-per-protocol 2
+```
+
+Then run the full workflow:
+
+```bash
+python scripts/10_run_benny_raw_data_workflow.py
+```
+
+The output is written to:
+
+```text
+outputs/benny_raw_data/
+```
+
+Main folders to inspect:
+
+```text
+outputs/benny_raw_data/01_tmca_run_analysis/run_plots/
+outputs/benny_raw_data/02_tmca_screening_summary/
+outputs/benny_raw_data/04_tmw_run_analysis/run_plots/
+outputs/benny_raw_data/05_tmw_condition_fits/
+outputs/benny_raw_data/06_tmw_condition_comparison/
+```
+
+---
+
+## Required control CSV format
+
+The control system should produce one CSV file per weld.
+
+Required columns:
+
+```text
+time_s
+actuator_position_mm
+actuator_velocity_mm_s
+reaction_force_n
+```
+
+Recommended optional columns:
+
+```text
+temperature_1_c
+temperature_2_c
+temperature_3_c
+temperature_4_c
+weld_length_mm
+```
+
+If `weld_length_mm` is not present, the code calculates it from the weld-start time and the welding travel speed given in the manifest.
+
+---
+
+## Manifest files
+
+The manifest is the central file controlling the analysis. Each row corresponds to one weld test.
+
+Important fields include:
+
+```text
+run_id
+protocol
+condition_id
+control_csv
+base_material
+filler_material
+current_a
+preheat_c
+v_high_mm_s
+v_step_mm_s
+a_dec_mm_s2
+weld_start_time_s
+weld_travel_speed_mm_s
+l_weld_mm
+l_crack_mm
+l_surf_mm
+l_ct_mm
+v_nc_mm_s
+include_in_summary
+```
+
+The code groups results by `condition_id`, so the same code can be used for AA7075, AA6061, AA5083, 304L stainless steel, Inconel, or any other alloy system.
+
+---
+
+## Manual weld-start selection
+
+The manual picker is used when the weld-start location is selected from the load-increase region of the force trace.
+
+Run:
+
+```bash
+python scripts/09_pick_weld_start.py --manifest data/manifest/my_tmca_manifest.csv --run-id RUN_ID --write-manifest
+```
+
+In the interactive plot:
+
+- Zoom or pan using the Matplotlib toolbar.
+- Left-click to place or move the load-rise marker.
+- Right-click or press `c` to clear the marker.
+- Use the left/right arrow keys for fine adjustment.
+- Close the plot window only when the selected point is correct.
+
+The selected value is saved only after the plot window is closed and confirmed.
+
+---
+
+## User-adjustable settings
+
+Global analysis options are stored in:
+
+```text
+config/default_analysis_config.json
+```
+
+Common options include:
+
+```text
+show_temperature
+selected_temperature_columns
+weld_start_method
+force_smoothing_window
+plot_format
+```
+
+The user can also override some options for individual runs in the manifest.
+
+---
+
+## Where to edit the code
+
+The main code locations are:
+
+```text
+src/tmw_tmca_analysis/plots.py
+src/tmw_tmca_analysis/run_analysis.py
+src/tmw_tmca_analysis/metrics.py
+src/tmw_tmca_analysis/raw_import.py
+src/tmw_tmca_analysis/schema.py
+src/tmw_tmca_analysis/weld_start.py
+```
+
+Use this guide:
+
+```text
+Single-run plots:        src/tmw_tmca_analysis/plots.py
+Manual weld start:       scripts/09_pick_weld_start.py
+Weld-start logic:        src/tmw_tmca_analysis/weld_start.py
+Run-level metrics:       src/tmw_tmca_analysis/run_analysis.py
+TMCA summary:            src/tmw_tmca_analysis/metrics.py
+TMW V_C--V_F fitting:    src/tmw_tmca_analysis/metrics.py
+Input-column schema:     src/tmw_tmca_analysis/schema.py
+Raw XML conversion:      src/tmw_tmca_analysis/raw_import.py
+```
+
+---
+
+## Tests
+
+Run the test suite with:
+
+```bash
+python -m pytest -q
+```
+
+---
+
+## Citation
+
+If you use this repository, cite the associated manuscript and the archived repository DOI.
+
+A citation file is included:
+
+```text
+CITATION.cff
+```
+
+After creating a Zenodo record, update `CITATION.cff` with the DOI.
+
+---
+
+## License
+
+The code is distributed under the license stated in `LICENSE`.
+
+For data licensing, see:
+
+```text
+DATA_LICENSE_RECOMMENDATION.md
+```
+
+Confirm the final code and data licenses with all authors and the institution before public release.
+
+---
+
+## Contact
+
+For questions about the workflow, contact the corresponding author:
+
+```text
+Benny Tavlovich
+bennytav@gmail.com
+```
