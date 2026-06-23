@@ -447,7 +447,9 @@ python -m pytest -q
 
 ## Citation
 
-If you use this repository, cite the associated manuscript and the archived repository DOI.
+If you use this repository, please cite the archived Zenodo release:
+
+B. Tavlovich, A. Shirizly, and S. Osovski, Data and code for instrumented TMW/TMCA solidification-cracking analysis, Zenodo, 2026. https://doi.org/10.5281/zenodo.20812741
 
 A citation file is included:
 
