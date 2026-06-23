@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: "TMW/TMCA solidification-cracking analysis workflow"
+message: "If you use this code or processed data, please cite the associated manuscript and repository DOI."
+type: software
+authors:
+  - family-names: Tavlovich
+    given-names: Benny
+  - family-names: Shirizly
+    given-names: Amnon
+  - family-names: Osovski
+    given-names: Shmuel
+version: 1.2.0
+date-released: 2026-01-01
+repository-code: "https://github.com/ADD-OWNER/ADD-REPOSITORY"
+doi: "ADD-ZENODO-DOI"
+license: MIT

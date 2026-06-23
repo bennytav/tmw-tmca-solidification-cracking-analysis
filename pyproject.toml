@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tmw-tmca-analysis"
+version = "1.2.0"
+description = "Stepwise TMW/TMCA analysis workflow for solidification-cracking screening and bracketing experiments."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  {name = "Benny Tavlovich", email = "bennytav@gmail.com"},
+  {name = "Amnon Shirizly"},
+  {name = "Shmuel Osovski"}
+]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "matplotlib>=3.7",
+  "lxml>=4.9"
+]
+
+[project.urls]
+Repository = "https://github.com/ADD-OWNER/ADD-REPOSITORY"
+Zenodo = "https://doi.org/ADD-ZENODO-DOI"
+
+[tool.setuptools.packages.find]
+where = ["src"]

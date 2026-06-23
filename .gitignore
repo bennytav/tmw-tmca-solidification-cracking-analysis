@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
+
+# Generated analysis outputs should be recreated by running the scripts.
+outputs/*
+!outputs/.gitkeep
+
+# Generated standardized controller CSV files can be recreated from raw_data/.
+# The small example CSV files in data/control_csv/ are kept.
+data/control_csv/tmca_raw/
+data/control_csv/tmw_raw/
+
+# raw_data/ is NOT ignored in this package. If you add raw_data/ and want to
+# publish it, run scripts/12_check_github_file_sizes.py before pushing to GitHub.
