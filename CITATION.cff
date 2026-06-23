@@ -10,7 +10,7 @@ authors:
   - family-names: Osovski
     given-names: Shmuel
 version: 1.2.0
-date-released: 2026-01-01
-repository-code: "https://github.com/ADD-OWNER/ADD-REPOSITORY"
-doi: "ADD-ZENODO-DOI"
+date-released: 2026-06-23
+repository-code: "https://github.com/bennytav/tmw-tmca-solidification-cracking-analysis.git"
+doi: "doi: 10.5281/zenodo.20812741"
 license: MIT
